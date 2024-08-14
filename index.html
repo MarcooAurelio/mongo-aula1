@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "@google/generative-ai": "https://esm.run/@google/generative-ai"
+      }
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown.js/0.5.0/markdown.min.js" integrity="sha512-kaDP6dcDG3+X87m9SnhyJzwBMKrYnd2tLJjGdBrZ9yEL8Zcl2iJRsPwylLkbd2g3QC5S8efV3sgwI5r73U0HnA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+
+    .chat-container {
+      width: 350px;
+      height: 500px;
+      border: 1px solid #ccc;
+      overflow-y: scroll;
+      padding: 10px;
+      background-color: #fff;
+    }
+
+    .user-message {
+      text-align: right;
+      margin-bottom: 10px;
+    }
+
+    .bot-message {
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      width: 250px;
+      padding: 8px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="chat-container" id="chat-container">
+    
+  </div>
+  <input type="text" id="user-input" placeholder="Digite sua mensagem...">
+  <button id="enviar">Enviar</button>
+
+  <script type="module">
+    import { GoogleGenerativeAI } from "@google/generative-ai";
+
+    const API_KEY = "AIzaSyDEbBioExNkKb6_bd6yfdY_CSHnweUNj48";
+
+    const genAI = new GoogleGenerativeAI(API_KEY);
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    document.querySelector("#enviar").addEventListener("click", () => sendMessage());
+
+    async function sendMessage() {
+      const userInput = document.getElementById('user-input').value;
+      appendMessage('user', userInput);
+
+      const result = await model.generateContent(userInput);
+      const response = await result.response;
+      const botResponse = response.text();
+
+      appendMessage('bot', botResponse);
+      document.getElementById('user-input').value = '';
+    }
+
+    function appendMessage(sender, message) {
+      const chatContainer = document.getElementById('chat-container');
+      const messageElement = document.createElement('div');
+      messageElement.classList.add(`${sender}-message`);
+      messageElement.innerHTML = markdown.toHTML(message);
+      chatContainer.appendChild(messageElement);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  </script>
+</body>
+
+</html>
